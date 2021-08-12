@@ -22,7 +22,8 @@ public class EngineImpl implements Engine {
 
     public void run() {
         while (true) {
-            String result = null;
+            String result;
+
             try {
                 result = processInput();
 

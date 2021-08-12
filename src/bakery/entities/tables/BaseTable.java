@@ -114,7 +114,8 @@ public abstract class BaseTable implements Table {
 
     @Override
     public void reserve(int numberOfPeople) {
-        this.capacity -= numberOfPeople;
+        setNumberOfPeople(numberOfPeople);
+        setPrice(this.pricePerPerson * numberOfPeople);
         this.isReserved = true;
     }
 
@@ -130,9 +131,17 @@ public abstract class BaseTable implements Table {
 
     @Override
     public double getBill() {
-        FoodRepository foodRepository = new FoodRepositoryImpl();
+        double bill = 0;
 
-        return this.getPricePerPerson() * this.getCapacity() + this.getPrice();
+        for (BakedFood currentFoodOrder : foodOrders) {
+            bill += currentFoodOrder.getPrice();
+        }
+
+        for (Drink currentDrinkOrder : drinkOrders) {
+            bill += currentDrinkOrder.getPrice();
+        }
+
+        return bill + this.price;
     }
 
     @Override
@@ -141,6 +150,7 @@ public abstract class BaseTable implements Table {
         this.drinkOrders.clear();
         this.numberOfPeople = 0;
         this.price = 0;
+        this.isReserved = false;
     }
 
     @Override

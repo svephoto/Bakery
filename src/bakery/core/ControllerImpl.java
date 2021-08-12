@@ -21,6 +21,7 @@ public class ControllerImpl implements Controller {
     private FoodRepository<BakedFood> foodRepository;
     private DrinkRepository<Drink> drinkRepository;
     private TableRepository<Table> tableRepository;
+    private double totalIncome;
 
     public ControllerImpl(FoodRepository<BakedFood> foodRepository, DrinkRepository<Drink> drinkRepository, TableRepository<Table> tableRepository) {
         this.foodRepository = foodRepository;
@@ -102,17 +103,13 @@ public class ControllerImpl implements Controller {
 
     @Override
     public String orderFood(int tableNumber, String foodName) {
-        Table table = this.tableRepository.getAll().stream()
-                .filter(currentTable -> currentTable.getTableNumber() == tableNumber)
-                .findFirst().orElse(null);
+        Table table = this.tableRepository.getByNumber(tableNumber);
 
-        BakedFood food = this.foodRepository.getAll().stream()
-                .filter(bakedFood -> bakedFood.getName().equals(foodName))
-                .findFirst().orElse(null);
-
-        if (table == null) {
+        if (table == null || !table.isReserved()) {
             return String.format(WRONG_TABLE_NUMBER, tableNumber);
         }
+
+        BakedFood food = this.foodRepository.getByName(foodName);
 
         if (food == null) {
             return String.format(NONE_EXISTENT_FOOD, foodName);
@@ -125,17 +122,13 @@ public class ControllerImpl implements Controller {
 
     @Override
     public String orderDrink(int tableNumber, String drinkName, String drinkBrand) {
-        Table table = this.tableRepository.getAll().stream()
-                .filter(currentTable -> currentTable.getTableNumber() == tableNumber)
-                .findFirst().orElse(null);
+        Table table = this.tableRepository.getByNumber(tableNumber);
 
-        Drink drink = this.drinkRepository.getAll().stream()
-                .filter(currentDrink -> currentDrink.getName().equals(drinkName) && currentDrink.getBrand().equals(drinkBrand))
-                .findFirst().orElse(null);
-
-        if (table == null) {
+        if (table == null || !table.isReserved()) {
             return String.format(WRONG_TABLE_NUMBER, tableNumber);
         }
+
+        Drink drink = this.drinkRepository.getByNameAndBrand(drinkName, drinkBrand);
 
         if (drink == null) {
             return String.format(NON_EXISTENT_DRINK, drinkName, drinkBrand);
@@ -148,16 +141,18 @@ public class ControllerImpl implements Controller {
 
     @Override
     public String leaveTable(int tableNumber) {
-        Table table = this.tableRepository.getAll().stream()
-                .filter(currentTable -> currentTable.getTableNumber() == tableNumber)
-                .findFirst().orElse(null);
+        Table currentTable = this.tableRepository.getByNumber(tableNumber);
 
-        assert table != null;
-        double tableBill = table.getBill();
+        if (currentTable == null) {
+            throw new IllegalArgumentException(String.format(WRONG_TABLE_NUMBER, tableNumber));
+        }
 
-        table.clear();
+        double bill = currentTable.getBill();
+        totalIncome += bill;
 
-        return String.format(BILL, tableNumber, tableBill);
+        currentTable.clear();
+
+        return String.format(BILL, tableNumber, bill);
     }
 
     @Override
@@ -175,7 +170,6 @@ public class ControllerImpl implements Controller {
 
     @Override
     public String getTotalIncome() {
-        double totalIncome = 0;
         return String.format(TOTAL_INCOME, totalIncome);
     }
 }

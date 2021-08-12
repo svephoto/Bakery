@@ -115,7 +115,7 @@ public abstract class BaseTable implements Table {
     @Override
     public void reserve(int numberOfPeople) {
         setNumberOfPeople(numberOfPeople);
-        setPrice(this.pricePerPerson * numberOfPeople);
+        setPrice(this.pricePerPerson * this.numberOfPeople);
         this.isReserved = true;
     }
 

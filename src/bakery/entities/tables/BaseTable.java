@@ -131,17 +131,17 @@ public abstract class BaseTable implements Table {
 
     @Override
     public double getBill() {
-        double bill = 0;
+        double currentBill = 0;
 
         for (BakedFood currentFoodOrder : foodOrders) {
-            bill += currentFoodOrder.getPrice();
+            currentBill += currentFoodOrder.getPrice();
         }
 
         for (Drink currentDrinkOrder : drinkOrders) {
-            bill += currentDrinkOrder.getPrice();
+            currentBill += currentDrinkOrder.getPrice();
         }
 
-        return bill + this.price;
+        return currentBill + this.price;
     }
 
     @Override

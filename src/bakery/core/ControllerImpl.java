@@ -122,19 +122,19 @@ public class ControllerImpl implements Controller {
 
     @Override
     public String orderDrink(int tableNumber, String drinkName, String drinkBrand) {
-        Table table = this.tableRepository.getByNumber(tableNumber);
+        Table currentTable = this.tableRepository.getByNumber(tableNumber);
 
-        if (table == null || !table.isReserved()) {
+        if (currentTable == null || !currentTable.isReserved()) {
             return String.format(WRONG_TABLE_NUMBER, tableNumber);
         }
 
-        Drink drink = this.drinkRepository.getByNameAndBrand(drinkName, drinkBrand);
+        Drink drinkOrdered = this.drinkRepository.getByNameAndBrand(drinkName, drinkBrand);
 
-        if (drink == null) {
+        if (drinkOrdered == null) {
             return String.format(NON_EXISTENT_DRINK, drinkName, drinkBrand);
         }
 
-        table.orderDrink(drink);
+        currentTable.orderDrink(drinkOrdered);
 
         return String.format(DRINK_ORDER_SUCCESSFUL, tableNumber, drinkName, drinkBrand);
     }
